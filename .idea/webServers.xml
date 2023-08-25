@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="21741214-463b-4d14-8eb2-18c7fc96abcd" name="wur ssh">
+        <fileTransfer accessType="SFTP" host="myers.bioinformatics.nl" port="22" sshConfigId="5526b93d-fc99-4bf3-aee4-97794706fb42" sshConfig="ribei027@myers.bioinformatics.nl:22 key" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
