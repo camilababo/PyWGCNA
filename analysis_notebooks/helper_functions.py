@@ -73,9 +73,9 @@ def process_dataset_to_keep_only_first_locus_tag(expression_dataset, output_file
     print("Expression dataset index saved successfully!")
 
 if __name__ == '__main__':
-    input_file_path = "../data/E-MEXP-728/eMEXP728_processed_locus_tag.csv"
-    output_file_path = "../data/E-MEXP-728/eMEXP728_non-filtered.csv"
-    # transpose_csv(input_file_path, output_file_path)
+    input_file_path = "../data/E-MEXP-1304/1304-ben-filt-processed.csv"
+    output_file_path = "../data/E-MEXP-1304/1304-ben-filt-processed-transposed.csv"
+    transpose_csv(input_file_path, output_file_path)
     # rite_expression_dataset_index_to_csv(output_file_path)
     # process_dataset_to_keep_only_first_locus_tag(input_file_path, output_file_path)
-    log2_transform_transpose(input_file_path, output_file_path, add_constant=True, constant=1)
+    # log2_transform_transpose(input_file_path, output_file_path, add_constant=True, constant=1)

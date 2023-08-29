@@ -15,14 +15,8 @@ class CompareModulesBetweenApproaches:
     """
     This class is used to compare the modules between the different approaches.
     
-    :param module_file: A list of paths to the files containing the modules
-    :type module_file: List
-    :param geneModule: gene module of predicted networks
-    :type geneModule: Dict
-    :param ModuleColors: The module colors
-    :type ModuleColors: List
-    :param jaccard_similarity: The jaccard similarity between the modules
-    :type jaccard_similarity: pandas dataframe
+    :param module_files: A list of paths to the files containing the modules
+    :type module_files: List
     """""
 
     def __init__(self, module_files: List):
@@ -31,6 +25,7 @@ class CompareModulesBetweenApproaches:
         self.moduleColors = list(self.geneModule.keys())
 
         self.jaccard_similarity = None
+        self.fraction = None
 
     def create_combined_module_file(self, remove_non_overlapping_genes: bool = False):
         """
@@ -48,7 +43,7 @@ class CompareModulesBetweenApproaches:
 
             genes = []
             colors = []
-            with fileinput.input(files=(file_path)) as f:
+            with fileinput.input(files=file_path) as f:
                 for line in f:
                     try:
                         gene, color = line.strip().split()  # Assuming each line has "gene color"
@@ -120,6 +115,43 @@ class CompareModulesBetweenApproaches:
         self.jaccard_similarity = jaccard_similarity
 
         return jaccard_similarity
+
+    def calculate_fraction_common_genes(self):
+        """
+        This function calculates the fraction of common genes between the modules.
+        :return: A pandas dataframe with the fraction of common genes between the modules
+        """
+
+        num = 0
+        names = []
+        for network in self.geneModule.keys():
+            num = num + len(self.geneModule[network].moduleColors.unique())
+            tmp = [f"{network}:" + s for s in self.geneModule[network].moduleColors.unique().tolist()]
+            names = names + tmp
+        fraction = pd.DataFrame(0, columns=names, index=names)
+
+        for network1 in self.geneModule.keys():
+            for network2 in self.geneModule.keys():
+                if network1 != network2:
+                    modules1 = self.geneModule[network1].moduleColors.unique().tolist()
+                    modules2 = self.geneModule[network2].moduleColors.unique().tolist()
+                    for module1 in modules1:
+                        for module2 in modules2:
+                            list1 = self.geneModule[network1].index[
+                                self.geneModule[network1].moduleColors == module1].tolist()
+                            list2 = self.geneModule[network2].index[
+                                self.geneModule[network2].moduleColors == module2].tolist()
+                            num = np.intersect1d(list1, list2)
+                            fraction.loc[f"{network1}:{module1}", f"{network2}:{module2}"] = len(num) / len(list2) * 100
+                else:
+                    modules = self.geneModule[network1].moduleColors.unique().tolist()
+                    for module in modules:
+                        fraction.loc[f"{network1}:{module}", f"{network1}:{module}"] = 1.0
+
+        self.fraction = fraction
+
+        return fraction
+
 
     def plot_jaccard_similarity(self,
                                 color=None,
