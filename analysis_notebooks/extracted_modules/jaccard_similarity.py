@@ -31,7 +31,8 @@ class CompareModulesBetweenApproaches:
         """
         Creates a txt file containing a dictionary with the gene modules.
         Does so by reading the original module txt files that contain the genes and the name of the module they belong to.
-        :return: A txt file containing a dictionary with the gene modules.
+        :param remove_non_overlapping_genes: If True, only genes that are present in all files will be included.
+        :return: A txt file containing a dictionary with the geneby  modules.
         """
 
         all_genes = set()  # To store all gene names
@@ -101,9 +102,9 @@ class CompareModulesBetweenApproaches:
                     modules2 = self.geneModule[network2].moduleColors.unique().tolist()
                     for module1 in modules1:
                         for module2 in modules2:
-                            list1 = self.geneModule[network1].index[
+                            list1 = self.geneModule[network1]["index"][
                                 self.geneModule[network1].moduleColors == module1].tolist()
-                            list2 = self.geneModule[network2].index[
+                            list2 = self.geneModule[network2]["index"][
                                 self.geneModule[network2].moduleColors == module2].tolist()
                             jaccard_similarity.loc[f"{network1}:{module1}", f"{network2}:{module2}"] = \
                                 self.jaccard_similarity_score(list1, list2)
@@ -160,7 +161,8 @@ class CompareModulesBetweenApproaches:
                                 save=True,
                                 plot_show=True,
                                 plot_format="png",
-                                file_name="jaccard_similarity"
+                                file_name="jaccard_similarity",
+                                network_colors=None
                                 ):
 
         """
@@ -179,6 +181,8 @@ class CompareModulesBetweenApproaches:
         :type plot_format: str
         :param file_name: The name of the file
         :type file_name: str
+        :param network_colors: The colors of the networks
+        :type network_colors: dict
         :return: A plot of the jaccard similarity between the modules
         """
         df = self.jaccard_similarity
@@ -219,8 +223,15 @@ class CompareModulesBetweenApproaches:
         colors = list(mcolors.CSS4_COLORS.keys())  # Get a list of CSS4 color names
         color_map = {network: colors[i % len(colors)] for i, network in enumerate(networks)}
 
-        # Set the color of each node based on the network it belongs to
-        node_colors = [color_map[node.split(":")[0]] for node in G.nodes()]
+        node_colors = []  # New list
+
+        for node in G:
+            network_name = node.split(":")[0]
+            if network_colors is not None and network_name in network_colors:
+                color = network_colors[network_name]
+            else:
+                color = "default_color"  # Assign a default color if network_colors is not provided
+            node_colors.append(color)
 
         nx.draw_networkx(G,
                          pos=pos,
@@ -241,6 +252,7 @@ class CompareModulesBetweenApproaches:
 
         if color is not None:
             for label in color:
+                color = {str(key): value for key, value in network_colors.items()}
                 ax.plot([0], [0], color=color[label], label=label)
 
         plt.legend(handles=legend_patches)
